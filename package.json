@@ -1,11 +1,33 @@
 {
-  "name": "barbeariafacil",
-  "version": "1.0.0",
+  "name": "agendamentos para salao",
+  "version": "1.0.1",
   "description": "Api para agendamentos",
   "main": "index.js",
   "scripts": {
+    "build": "tsc -w",
+    "dev": "nodemon ./dist/server.js",
+    "start": "concurrently \"npm:build\" \"npm:dev\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "william luqui",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "nodemailer": "^6.9.7",
+    "prisma": "^5.7.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.5",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "nodemon": "^3.0.2",
+    "prettier": "^3.1.1",
+    "typescript": "^5.3.3"
+  }
 }
