@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Definição do modelo para a tabela 'admin'
+model Admin {
+  id          Int      @id @default(autoincrement())
+  usuario     String   @unique
+  password    String
+  tipo        String   @default("admin")
+  create_time DateTime @default(now())
+}
+
+// Definição do modelo para a tabela 'pagamentos'
+model Pagamento {
+  id_pagamento     Int           @id @default(autoincrement())
+  data_pagamento   DateTime
+  metodo_pagamento String
+  valor            Float
+  create_time      DateTime      @default(now())
+  update_time      DateTime      @updatedAt
+  Cabelereiro      Cabelereiro[]
+}
+
+// Definição do modelo para a tabela 'cabelereiros'
+model Cabelereiro {
+  id_cabelereiro          Int                  @id @default(autoincrement())
+  email                   String               @unique
+  password                String
+  telefone                String
+  avatar                  String?
+  ativo                   Boolean              @default(false)
+  tipo                    String               @default("cabelereiro")
+  create_time             DateTime             @default(now())
+  pagamentos_id_pagamento Int
+  pagamentos              Pagamento            @relation(fields: [pagamentos_id_pagamento], references: [id_pagamento])
+  CabelereiroUsuario      CabelereiroUsuario[]
+}
+
+// Definição do modelo para a tabela 'usuarios'
+model Usuario {
+  id_usuario         Int                  @id @default(autoincrement())
+  nome               String
+  telefone           String
+  email              String               @unique
+  password           String
+  tipo               String               @default("cliente")
+  avatar             String?
+  create_time        DateTime             @default(now())
+  Agendamento        Agendamento[]
+  CabelereiroUsuario CabelereiroUsuario[]
+}
+
+// Definição do modelo para a tabela 'agendamentos'
+model Agendamento {
+  id_agendamento      Int       @id @default(autoincrement())
+  data                DateTime
+  hora                DateTime
+  tipo_servico        String
+  usuarios_id_usuario Int
+  usuario             Usuario   @relation(fields: [usuarios_id_usuario], references: [id_usuario])
+  Servico             Servico[]
+}
+
+// Definição do modelo para a tabela 'servicos'
+model Servico {
+  id_servicos                 Int         @id @default(autoincrement())
+  corte_cabelo                String?     @default("cabelo")
+  corte_barba                 String?     @default("barba")
+  corte_cabelo_barba          String?     @default("cabelo e barba")
+  agendamentos_id_agendamento Int
+  agendamento                 Agendamento @relation(fields: [agendamentos_id_agendamento], references: [id_agendamento])
+}
+
+// Definição do modelo para a tabela 'cabelereiros_has_usuarios'
+model CabelereiroUsuario {
+  cabelereiros_id_cabelereiro Int
+  usuarios_id_usuario         Int
+  cabelereiro                 Cabelereiro @relation(fields: [cabelereiros_id_cabelereiro], references: [id_cabelereiro])
+  usuario                     Usuario     @relation(fields: [usuarios_id_usuario], references: [id_usuario])
+
+  @@id([cabelereiros_id_cabelereiro, usuarios_id_usuario], name: "cabelereiros_id_cabelereiro_usuarios_id_usuario")
+}

@@ -1,7 +1,7 @@
 export interface IAdmin {
     user: string;
     password: string;
-    tipo: string;
+    tipo?: string;
 }
 
 export interface IUser {
