@@ -4,14 +4,19 @@
        "lib": ["ES2023"],                                   /* Specify a set of bundled library declaration files that describe the target runtime environment. */
        "experimentalDecorators": true,                   /* Enable experimental support for legacy experimental decorators. */
        "emitDecoratorMetadata": true,                    /* Emit design-type metadata for decorated declarations in source files. */
+        "paths": {                                       /* Enable path @ from import .../../../  */
+          "@/*":["src/*"]
+        },       
        /* Modules */
        "module": "commonjs",                                /* Specify what module code is generated. */
-       "rootDir": "./src/",                                  /* Specify the root folder within your source files. */
+       "rootDir": "./src",
+       "types": ["node", "jest"],                                  /* Specify the root folder within your source files. */
        "moduleResolution": "node",                       /* Specify how TypeScript looks up a file from a given module specifier. */
-       "baseUrl": "./src",                               /* Specify the base directory to resolve non-relative module names. */
+       "baseUrl": "./",                               /* Specify the base directory to resolve non-relative module names. */
        "resolveJsonModule": true,                        /* Enable importing .json files. */
        "sourceMap": true,                                /* Create source map files for emitted JavaScript files. */
-       "outDir": "./dist",                               /* Specify an output folder for all emitted files. */
+       "outDir": "./dist",
+                                   /* Specify an output folder for all emitted files. */
        "removeComments": true,                           /* Disable emitting comments. */
        "noEmit": false,                                   /* Disable emitting files from a compilation. */
        "noEmitOnError": false,                            /* Disable emitting files if any type checking errors are reported. */
@@ -23,5 +28,6 @@
        "noImplicitAny": true,                            /* Enable error reporting for expressions and declarations with an implied 'any' type. */
        "alwaysStrict": true,                             /* Ensure 'use strict' is always emitted. */
        "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
-  }
+  },
+  "include": ["src/**/*.ts", "/__tests__/**/*.ts"]
 }

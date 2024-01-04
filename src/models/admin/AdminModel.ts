@@ -1,26 +1,29 @@
 import bcrypt from 'bcryptjs';
-import { PrismaClient } from '@prisma/client';
-import { ErrorHandler } from '../../middleware/errorApplication';
+import { prisma } from '../../database/database';
+import { errorHandler } from '../../middleware/handleErrorApp';
 
 export class AdminModel {
-    public async adminModelSession(password: string) {
-        const prisma = new PrismaClient();
+    public async CreateAdminModelSession(password: string) {
+        const user: string = 'SuperAdmin';
 
         const saltHash: number = 10;
         const hash = await bcrypt.hash(password, saltHash);
 
-        const registerAdmin = await prisma.admin.create({
-            data: {
-                usuario: 'SuperAdmin',
-                password: hash,
-            },
-        });
+        const checkUser = await prisma.admin.findFirst();
 
-        return registerAdmin;
+        if (checkUser) throw new errorHandler(401, 'Você não está autorizado!');
+
+        if (user) {
+            await prisma.admin.create({
+                data: {
+                    usuario: user,
+                    password: hash,
+                },
+            });
+        }
     }
-    public async loginModelSessionAdmin(username: string, password: string) {
-        const prisma = new PrismaClient();
 
+    public async LoginModelSessionAdmin(username: string, password: string) {
         const findUser = await prisma.admin.findFirst({
             where: {
                 usuario: username,
@@ -28,16 +31,21 @@ export class AdminModel {
         });
 
         if (!findUser) {
-            throw new ErrorHandler(
+            throw new errorHandler(
                 401,
                 'Usuário ou senha inválido tente novamente !'
             );
         }
 
         const validPassword = await bcrypt.compare(password, findUser.password);
-        if (!validPassword)
-            throw new ErrorHandler(401, 'Usuário ou senha inválido!');
 
-        return findUser;
+        if (!validPassword) {
+            throw new errorHandler(
+                401,
+                'Credenciais inválidas. Tente novamente!'
+            );
+        }
+
+        return validPassword;
     }
 }

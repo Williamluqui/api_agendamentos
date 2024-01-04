@@ -1,8 +1,8 @@
 import { AdminModel } from '../../models/admin/AdminModel';
 import { IAdmin } from './admin.interface';
 import { Response, Request, NextFunction } from 'express';
+import { errorApp } from '../../middleware/genericErrors';
 
-//import { ErrorHandler } from '../../middleware/errorApplication';
 
 export class AdminController {
     async adminRegister(req: Request, res: Response, next: NextFunction) {
@@ -10,24 +10,28 @@ export class AdminController {
 
         try {
             if (!password || typeof password !== 'string') {
-                res.status(400).json('Password is required or inválid !');
+                res.status(400).json('Insira um password válido!');
                 return;
             }
 
-            const admin = new AdminModel();
-            await admin.adminModelSession(password);
+            const adminModel = new AdminModel();
 
-            res.status(201).json('Admin register on database !');
-        } catch (error) {
-            res.status(500).json({
-                message: 'An internal server error occurred',
+            await adminModel.CreateAdminModelSession(password);
+
+            res.status(201).json({
+                data: {
+                    message: 'Registrado com sucesso!',
+                },
             });
-            next(error);
+
+        } catch (error) {
+            errorApp(error, res, next);
         }
     }
 
     async adminLogin(req: Request, res: Response, next: NextFunction) {
         const { username, password } = req.body as Partial<IAdmin>;
+
         try {
             if (
                 !username ||
@@ -35,18 +39,23 @@ export class AdminController {
                 typeof username !== 'string' ||
                 typeof password !== 'string'
             ) {
-                res.status(400).json('Invalid Username or password');
+                res.status(400).json('Nome de usuário e senha são necessários');
                 return;
-                // throw new ErrorHandler(400, 'Invalid Username or password');
             }
 
-            const loginAdmin = new AdminModel().loginModelSessionAdmin;
+            const loginAdmin = new AdminModel().LoginModelSessionAdmin;
             await loginAdmin(username, password);
+
             
-           
-            res.status(200).json({ message: ' Login succesfull ' });
+
+            res.status(200).json({
+                data: {
+                    message: 'Sucesso!',
+                    token: 'teste',
+                },
+            });
         } catch (error) {
-            next(error);
+            errorApp(error, res, next);
         }
     }
 }
