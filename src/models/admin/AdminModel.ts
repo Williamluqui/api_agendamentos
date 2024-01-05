@@ -1,51 +1,48 @@
 import bcrypt from 'bcryptjs';
 import { prisma } from '../../database/database';
-import { errorHandler } from '../../middleware/handleErrorApp';
+import { errorHandler } from '../../errors/handleErrorApp';
 
-export class AdminModel {
-    public async CreateAdminModelSession(password: string) {
-        const user: string = 'SuperAdmin';
 
-        const saltHash: number = 10;
-        const hash = await bcrypt.hash(password, saltHash);
+export async function CreateAdminModelSession(password: string) {
+    const user: string = 'SuperAdmin';
 
-        const checkUser = await prisma.admin.findFirst();
+    const saltHash: number = 12;
+    const hash = await bcrypt.hash(password, saltHash);
 
-        if (checkUser) throw new errorHandler(401, 'Você não está autorizado!');
+    const checkUser = await prisma.admin.findFirst();
 
-        if (user) {
-            await prisma.admin.create({
-                data: {
-                    usuario: user,
-                    password: hash,
-                },
-            });
-        }
-    }
+    if (checkUser) throw new errorHandler(401, 'Você não está autorizado!');
 
-    public async LoginModelSessionAdmin(username: string, password: string) {
-        const findUser = await prisma.admin.findFirst({
-            where: {
-                usuario: username,
+    if (user) {
+        await prisma.admin.create({
+            data: {
+                usuario: user,
+                password: hash,
             },
         });
+    }
+}
 
-        if (!findUser) {
-            throw new errorHandler(
-                401,
-                'Usuário ou senha inválido tente novamente !'
-            );
+export async function findAll(username: string) {
+    const findUser = await prisma.admin.findFirst({
+        where: {
+            usuario: username,
         }
+        
+    });
 
-        const validPassword = await bcrypt.compare(password, findUser.password);
+    if (!findUser) {
+        throw new errorHandler(401, 'Senha ou usuario inválido, tente novamente!');
+    }
+    return findUser;
+}
 
-        if (!validPassword) {
-            throw new errorHandler(
-                401,
-                'Credenciais inválidas. Tente novamente!'
-            );
-        }
+export async function LoginModelSessionAdmin(username: string, password: string) {
+    const user = await findAll(username);
 
-        return validPassword;
+    const validPassword = await bcrypt.compare(password, user.password);
+
+    if (!validPassword) {
+        throw new errorHandler(401, 'Senha ou usuario inválido, tente novamente!');
     }
 }

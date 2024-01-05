@@ -1,9 +1,10 @@
-import 'dotenv/config';
+import * as dotenv from 'dotenv';
+dotenv.config();
 import 'express-async-errors';
 import express from 'express';
 import cors from 'cors';
 import { router } from './router/routes';
-import { handleError } from './middleware/handleErrorApp';
+import { handleError } from './errors/handleErrorApp';
 //import errorHandlerPrisma from './middleware/errorPrisma';
 
 const app = express();

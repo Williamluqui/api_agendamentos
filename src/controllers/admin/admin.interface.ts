@@ -1,5 +1,6 @@
 export interface IAdmin {
-    username?: string ;
+    id: number;
+    usuario: string ;
     password: string;
     tipo?: string;
 }

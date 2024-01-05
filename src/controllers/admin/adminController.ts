@@ -1,8 +1,13 @@
-import { AdminModel } from '../../models/admin/AdminModel';
+import {
+    CreateAdminModelSession,
+    LoginModelSessionAdmin,
+    findAll,
+} from '../../models/admin/AdminModel';
+
 import { IAdmin } from './admin.interface';
 import { Response, Request, NextFunction } from 'express';
-import { errorApp } from '../../middleware/genericErrors';
-
+import { errorApp } from '../../errors/genericErrors';
+import { generateToken } from '../../services/jwtServices';
 
 export class AdminController {
     async adminRegister(req: Request, res: Response, next: NextFunction) {
@@ -10,52 +15,61 @@ export class AdminController {
 
         try {
             if (!password || typeof password !== 'string') {
-                res.status(400).json('Insira um password válido!');
+                res.status(400).json({message:'Insira um password válido!'});
                 return;
             }
 
-            const adminModel = new AdminModel();
-
-            await adminModel.CreateAdminModelSession(password);
+            await CreateAdminModelSession(password);
 
             res.status(201).json({
                 data: {
                     message: 'Registrado com sucesso!',
                 },
             });
-
         } catch (error) {
+            console.log(`[ERRO] ${error}`);
             errorApp(error, res, next);
         }
     }
 
-    async adminLogin(req: Request, res: Response, next: NextFunction) {
-        const { username, password } = req.body as Partial<IAdmin>;
-
+    async adminLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
+            const { username, password } = req.body;
             if (
                 !username ||
                 !password ||
                 typeof username !== 'string' ||
                 typeof password !== 'string'
             ) {
-                res.status(400).json('Nome de usuário e senha são necessários');
+                res.status(400).json({
+                    message: 'Nome de usuário e senha são necessários',
+                });
                 return;
             }
 
-            const loginAdmin = new AdminModel().LoginModelSessionAdmin;
-            await loginAdmin(username, password);
+            await LoginModelSessionAdmin(username, password);
 
-            
+            const user: IAdmin = await findAll(username);
+
+            const jwtToken = generateToken(user);
 
             res.status(200).json({
                 data: {
                     message: 'Sucesso!',
-                    token: 'teste',
+                    jwtToken,
                 },
             });
         } catch (error) {
+            console.log(`[ERRO] ${error}`);
             errorApp(error, res, next);
         }
     }
+
+    async adminPanel(req: Request, res: Response): Promise<void> {
+        res.json({ msg: 'logged' });
+    }
 }
+
+// registrar um admin x
+
+// logar o admin e passar o token de sessão x
